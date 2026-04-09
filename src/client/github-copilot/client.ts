@@ -263,9 +263,7 @@ export class GitHubCopilotProvider implements ApiProvider {
 
   constructor(config: ProviderConfig) {
     const extraBody = config.extraBody ?? {};
-    const hasStore =
-      config.store !== undefined ||
-      Object.prototype.hasOwnProperty.call(extraBody, 'store');
+    const hasStore = Object.prototype.hasOwnProperty.call(extraBody, 'store');
     const configWithDefaults: ProviderConfig = hasStore
       ? config
       : { ...config, extraBody: { ...extraBody, store: false } };

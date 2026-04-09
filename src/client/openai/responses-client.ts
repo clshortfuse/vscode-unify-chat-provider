@@ -356,10 +356,6 @@ export class OpenAIResponsesProvider implements ApiProvider {
     return payload;
   }
 
-  protected shouldRenderReasoningContent(): boolean {
-    return true;
-  }
-
   protected getInputMessageRole(
     role: vscode.LanguageModelChatMessageRole,
   ): EasyInputMessage['role'] {
@@ -847,12 +843,7 @@ export class OpenAIResponsesProvider implements ApiProvider {
   protected handleRequest(
     sessionId: string,
     baseBody: ResponseCreateParamsBase,
-  ): void {
-    const storeOverride = this.config.store;
-    if (storeOverride !== undefined) {
-      baseBody.store = storeOverride;
-    }
-  }
+  ) {}
 
   private resolveTransportMode(streamEnabled: boolean): ResolvedTransportMode {
     switch (this.config.transport) {
@@ -1814,17 +1805,6 @@ export class OpenAIResponsesProvider implements ApiProvider {
     state.lastType = type;
   }
 
-  private appendThinkingMetadata(
-    text: string,
-    metadata: OpenAIResponsesThinkingMetadata | undefined,
-  ): void {
-    if (!text || !metadata) {
-      return;
-    }
-
-    metadata._completeThinking = (metadata._completeThinking || '') + text;
-  }
-
   private applyThinkingRawState(
     metadata: OpenAIResponsesThinkingMetadata | undefined,
     rawState: OpenAIResponsesMarkerData | undefined,
@@ -1902,17 +1882,13 @@ export class OpenAIResponsesProvider implements ApiProvider {
 
       for (const part of reasoning.content ?? []) {
         if (part.type === 'reasoning_text') {
-          if (this.shouldRenderReasoningContent()) {
-            yield* this.emitThinkingText(
-              'content',
-              part.text,
-              emitMode,
-              metadata,
-              state,
-            );
-          } else {
-            this.appendThinkingMetadata(part.text, metadata);
-          }
+          yield* this.emitThinkingText(
+            'content',
+            part.text,
+            emitMode,
+            metadata,
+            state,
+          );
         }
       }
     }
@@ -2055,7 +2031,7 @@ export class OpenAIResponsesProvider implements ApiProvider {
           break;
 
         case 'response.reasoning_text.delta':
-          if (event.delta && this.shouldRenderReasoningContent()) {
+          if (event.delta) {
             yield* this.emitThinkingText(
               'content',
               event.delta,

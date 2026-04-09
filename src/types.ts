@@ -63,11 +63,6 @@ export interface ProviderConfig {
   extraHeaders?: Record<string, string>;
   /** Extra body parameters to include in requests */
   extraBody?: Record<string, unknown>;
-  /**
-   * Responses API store flag. When set, overrides the provider default.
-   * Codex previously forced `store: false`; set this to true to enable storing.
-   */
-  store?: boolean;
   /** Timeout configuration */
   timeout?: TimeoutConfig;
   /** Retry configuration */
